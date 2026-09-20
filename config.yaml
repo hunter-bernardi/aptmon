@@ -42,9 +42,9 @@ notify:
       enabled: false
       url: ""
 
-# Building overrides - only needed if a site changes. Example:
-# buildings:
-#   wolf_point_east:
-#     sightmap_embed: "https://sightmap.com/embed/y8pxdmnjw19"
-#   the_row:
-#     enabled: false
+# Building overrides - only needed if a site changes.
+buildings:
+  the_row:
+    # relatedrentals.com switched from numeric city/property IDs to named, array-style params
+    # (confirmed 2026-09-20). Old URL still loaded but returned nothing for this building.
+    search_url: "https://www.relatedrentals.com/search?city[]=Chicago&property[]=The%20Row%20Fulton%20Market"
