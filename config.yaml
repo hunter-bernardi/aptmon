@@ -1,0 +1,50 @@
+# Cloud (GitHub Actions) setup notes:
+#   - The ntfy/webhook/dashboard-url settings below are overridden by env vars the workflow
+#     already sets (APTMON_NTFY_TOPIC from the NTFY_TOPIC secret, etc.), so you don't need to
+#     touch the ntfy block for the cloud run - it's here for local Mac use.
+#   - Everything you leave out falls back to the defaults in aptmon/config.py.
+
+bedrooms: [2]              # e.g. [1, 2] to also track 1BRs
+
+trend:
+  window_days: 30          # slope is fit over this many trailing days
+  flat_band_per_week: 10   # |slope| under $10/wk = "flat"
+
+notify:
+  on_drop: true
+  on_increase: false
+  on_new_unit: true        # ping when a new 2BR hits the market
+  on_scraper_broken: true  # one alert when a building's page stops parsing (and one on recovery)
+  min_drop_dollars: 1
+  min_drop_pct: 0.0
+
+  channels:
+    console: {enabled: true}
+    macos:   {enabled: true}          # native banner; `brew install terminal-notifier` makes it clickable
+
+    # Phone push, free, no account: install the ntfy app, subscribe to your topic.
+    # Pick an unguessable topic name - anyone who knows it can read it.
+    ntfy:
+      enabled: false
+      topic: "hunter-2br-CHANGE-ME-8k2q"
+      server: "https://ntfy.sh"
+
+    email:
+      enabled: false
+      smtp_host: smtp.gmail.com
+      smtp_port: 587
+      username: you@gmail.com
+      password_env: APTMON_SMTP_PASSWORD   # Gmail app password, read from this env var
+      from: you@gmail.com
+      to: you@gmail.com
+
+    webhook:                               # Slack or Discord incoming webhook
+      enabled: false
+      url: ""
+
+# Building overrides - only needed if a site changes. Example:
+# buildings:
+#   wolf_point_east:
+#     sightmap_embed: "https://sightmap.com/embed/y8pxdmnjw19"
+#   the_row:
+#     enabled: false
