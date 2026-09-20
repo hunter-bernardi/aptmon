@@ -1,8 +1,9 @@
 name: 2BR price check
 on:
   schedule:
-    - cron: "0 12 * * *"
-    - cron: "0 13 * * *"
+    # 6am / 10am / 2pm / 6pm / 10pm Central, skipping 2am. Tuned for CDT (UTC-5);
+    # drifts ~1hr earlier during CST (Nov-Mar) since GitHub cron is UTC-only, no DST awareness.
+    - cron: "0 3,11,15,19,23 * * *"
   workflow_dispatch:
   push:
     paths: [".github/workflows/monitor.yml", "aptmon.zip"]
@@ -15,7 +16,6 @@ env:
   APTMON_HOME: .aptmon
   APTMON_DB_PATH: data/aptmon.db
   APTMON_TZ: America/Chicago
-  APTMON_RUN_AT_HOUR: "7"
   APTMON_NTFY_TOPIC: ${{ secrets.NTFY_TOPIC || 'aptmon-S3PWILa96x3F' }}
   APTMON_DASHBOARD_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 jobs:
@@ -34,19 +34,11 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install -e .
-      - name: Due today?
-        id: gate
-        run: |
-          if [ "${{ github.event_name }}" != "schedule" ] || python -m aptmon due; then
-            echo "go=true" >> "$GITHUB_OUTPUT"; fi
-      - if: steps.gate.outputs.go == 'true'
-        run: python -m playwright install --with-deps chromium
+      - run: python -m playwright install --with-deps chromium
       - name: Scrape, record, alert
-        if: steps.gate.outputs.go == 'true'
         id: scrape
         run: python -m aptmon run --debug || echo "failed=true" >> "$GITHUB_OUTPUT"
       - name: Save price history
-        if: steps.gate.outputs.go == 'true'
         run: |
           git config user.name aptmon-bot
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -56,11 +48,8 @@ jobs:
       - if: steps.scrape.outputs.failed == 'true'
         uses: actions/upload-artifact@v4
         with: {name: scrape-debug, path: .aptmon/debug, retention-days: 7}
-      - if: steps.gate.outputs.go == 'true'
-        run: python -m aptmon export-site site
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/upload-pages-artifact@v3
+      - run: python -m aptmon export-site site
+      - uses: actions/upload-pages-artifact@v3
         with: {path: site}
       - id: deploy
-        if: steps.gate.outputs.go == 'true'
         uses: actions/deploy-pages@v4
