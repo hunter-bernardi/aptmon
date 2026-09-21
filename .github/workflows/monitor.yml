@@ -1,9 +1,8 @@
 name: 2BR price check
 on:
   schedule:
-    # 6am / 10am / 2pm / 6pm / 10pm Central, skipping 2am. Tuned for CDT (UTC-5);
-    # drifts ~1hr earlier during CST (Nov-Mar) since GitHub cron is UTC-only, no DST awareness.
-    - cron: "0 3,11,15,19,23 * * *"
+    # every 2 hours, all day
+    - cron: "0 */2 * * *"
   workflow_dispatch:
   push:
     paths: [".github/workflows/monitor.yml", "aptmon.zip"]
