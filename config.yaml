@@ -12,7 +12,7 @@ trend:
 
 notify:
   on_drop: true
-  on_increase: false
+  on_increase: true
   on_new_unit: true        # ping when a new 2BR hits the market
   on_scraper_broken: true  # one alert when a building's page stops parsing (and one on recovery)
   min_drop_dollars: 1
