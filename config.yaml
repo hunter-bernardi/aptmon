@@ -48,3 +48,9 @@ buildings:
     # relatedrentals.com switched from numeric city/property IDs to named, array-style params
     # (confirmed 2026-09-20). Old URL still loaded but returned nothing for this building.
     search_url: "https://www.relatedrentals.com/search?city[]=Chicago&property[]=The%20Row%20Fulton%20Market"
+  foundry:
+    # ...your existing foundry config stays as-is above this...
+    concession_overrides:
+      - beds: [2.0]
+        amount: 3000
+        note: "confirmed by phone with leasing 2026-09-22 - flat $3,000 for 2BR"
